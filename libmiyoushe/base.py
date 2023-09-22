@@ -1,5 +1,3 @@
-import hashlib
-import json
 import logging
 import random
 import string
@@ -13,17 +11,6 @@ from . import *
 from . import configs
 
 logger = logging.getLogger('libhoyolab.base')
-
-
-def md5(text) -> str:
-    """
-    md5加密
-    :param text: 需要加密的文本
-    :return:
-    """
-    md5 = hashlib.md5()
-    md5.update(text.encode())
-    return md5.hexdigest()
 
 
 def randomStr(n) -> str:
@@ -76,10 +63,11 @@ def DS2(query='', body='', salt='4x') -> str:
 
 
 def headerGenerate(app='web', client='4', withCookie=True, withDs=True, agro=1, query='', body: str | dict = '',
-                   salt_agro1='lk2', salt_agro2='4x', Referer="https://www.miyoushe.com/") -> dict:
+                   salt_agro1='lk2', salt_agro2='4x', Referer="https://www.miyoushe.com/", stoken_ver=1,
+                   ltoken_ver=1) -> dict:
     """
     生成请求头
-    :param app: ‘app’ 或 ‘web’
+    :param app: ‘app’ 或 ‘web’（已弃用）
     :param client: 1：iOS 2：Android 4：网页 5：其他
     :param withCookie: 是否携带cookie信息
     :param withDs: 是否包含Ds（已弃用）
@@ -89,12 +77,14 @@ def headerGenerate(app='web', client='4', withCookie=True, withDs=True, agro=1, 
     :param salt_agro1: 指定算法为Ds1的salt
     :param salt_agro2: 指定算法为Ds2的salt
     :param Referer: 请求头的Referer字段
+    :param ltoken_ver: ltoken等级
+    :param stoken_ver: stoken等级
     :return: dict
     """
-    account = configs.readAccount(str)
+    account = configs.readAccount(str, stoken_ver=stoken_ver, ltoken_ver=ltoken_ver)
     headers = {
         "Cookie": account if withCookie else '',
-        'User-Agent': "okhttp/4.8.0" if app == 'app' else f'Mozilla/5.0 (Linux; Android 12; vivo-s7 Build/RKQ1.211119.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/105.0.5195.79 Mobile Safari/537.36 miHoYoBBS/{mysVersion}',
+        'User-Agent': "okhttp/4.8.0" if client == '2' else f'Mozilla/5.0 (Linux; Android 12; vivo-s7 Build/RKQ1.211119.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/105.0.5195.79 Mobile Safari/537.36 miHoYoBBS/{mysVersion}',
         "Dnt": "1",
         "DS": DS1(salt_agro1) if agro == 1 else DS2(query, body, salt_agro2),
         "x-rpc-client_type": client,
@@ -153,3 +143,14 @@ def connectApi(apiUrl: str, method='get', data=None, headers=None) -> requests.R
         raise Exception(f'Connection Failed! {err}')
     return resp
 
+
+def connectionTest():
+    """
+    测试连接到米游社是否正常
+    :return: 访问状态
+    """
+    try:
+        resp = session.get('https://www.miyoushe.com')
+        return resp.ok
+    except requests.exceptions.ConnectionError:
+        return False

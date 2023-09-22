@@ -1,8 +1,8 @@
-import json
+import pprint
 import time
 
 from . import *
-from . import urls, threadRender, configs, set_current_user, get_current_user
+from . import urls, threadRender
 import logging
 
 from .base import connectApi, headerGenerate
@@ -41,8 +41,11 @@ def articleSet(raw_articles: list, method: str = 'normal') -> list:
                 articleInfo['user']['introduce']) > 15 else ''
             article['authorDescribe'] = describe
             article['type'] = articleInfo['post']['view_type']
+            article['upvote'] = bool(articleInfo['self_operation']['attitude'])
+            article['collect'] = bool(articleInfo['self_operation']['is_collected'])
             articles.append(article)
-        except Exception:
+        except Exception as e:
+            print(type(e), e)
             continue
 
     return articles
@@ -64,6 +67,21 @@ def getEmotions(gid: str | int = '2') -> dict:
             emotionDict[emotion['name']] = emotion['icon']
 
     return emotionDict
+
+
+def getGame(game):
+    resp = connectApi(urls.getGameList)
+    match game:
+        case 'all':
+            game_list = list()
+            for item in resp.json()['data']['list']:
+                game_list.append([item['name'], item['id'], item['op_name'], item['en_name']])
+            return game_list
+        case _:
+            for item in resp.json()['data']['list']:
+                if item['en_name'] == game or item['name'] == game or item['op_name'] == game or item['id'] == game:
+                    return [item['name'], item['id'], item['op_name'], item['en_name']]
+            return ['', 0, '']
 
 
 class Article:
@@ -556,7 +574,6 @@ class Actions:
         }
         resp = connectApi(urls.releaseReply, method='post', data=reply_contents, headers=header).json()
         return resp['retcode'], resp['message']
-
 
     @staticmethod
     def deleteReply(post_id, reply_id):

@@ -103,7 +103,7 @@ def login(*args):
                 account = {
                     "login_ticket": login_ticket,
                     "stuid": stuid,
-                    "stoken": stoken_v2,
+                    "stoken": [stoken_v1, stoken_v2],
                     "ltoken": ltoken,
                     "ltuid": ltuid,
                     'cookie_token': cookie_token,
@@ -147,8 +147,6 @@ def reLogin(uid: str = 'all'):
         inner_reLogin(uid)
 
 
-
-
 def getLoginTicketByPassword(username: str, password: str):
     """
     使用用户名密码获取login_ticket
@@ -178,9 +176,10 @@ def getLoginTicketByPassword(username: str, password: str):
             return {'msg': resp_login['data']['msg'], 'token': ''}
 
 
-def loginByWeb(gui_page: str = page):
+def loginByWeb(gui_page: str = page, open_webview=True):
     """
     利用pywebview处理用户登录事件并利用获取到的login_ticket完成登录
+    :param open_webview: 是否启动webview界面
     :param gui_page: 自定义登录gui界面
     """
     global cookies
@@ -216,3 +215,6 @@ def loginByWeb(gui_page: str = page):
     main = webview.create_window(js_api=api, on_top=True, x=10, y=10, title='!!!完成登录操作前请勿关闭该窗口!!!',
                                  html=gui_page, minimized=False, confirm_close=True, resizable=False, height=175,
                                  width=650)
+
+    if open_webview:
+        webview.start()
