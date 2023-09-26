@@ -13,9 +13,9 @@ import webview
 # get current user nickname in miyoushe
 # print(set_current_user('198597220'))
 # print(get_current_user())
-print(bbs.get_current_user())
-print(bbs.User().getNickname())
-print(bbs.User().getUid())
+# print(bbs.get_current_user())
+# print(bbs.User().getNickname())
+# print(bbs.User().getUid())
 # print(configs.readAccount(str))
 # # get title and contents in article 43124340
 # article = bbs.Article(43124340)
@@ -37,3 +37,5 @@ print(bbs.User().getUid())
 # # get the article set in the forum
 # forum = bbs.Forum('26', '2', '1')
 # pprint.pprint(forum.articles)
+# [print(comment) for comment in bbs.Comments('43755492', gid=2).comments]
+bbs.Actions.upvoteReply(reply_id='1706262548909395968', post_id='43755492')

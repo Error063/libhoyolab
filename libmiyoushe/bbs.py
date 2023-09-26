@@ -269,32 +269,35 @@ class Comments:
         self.isLastFlag = result['data']['is_last']
         comments_raw = result['data']['list']
         for i in range(len(comments_raw)):
-            reply = comments_raw[i]
-            tmp = {
-                'reply_id': reply['reply']['reply_id'],
-                'floor_id': reply['reply']['floor_id'],
-                'post_id': reply['reply']['post_id'],
-                'content': threadRender.replaceAllFromDelta(reply['reply']['struct_content'], emotionDict),
-                'username': reply['user']['nickname'],
-                'uid': int(reply['user']['uid']),
-                'avatar': reply['user']['avatar_url'],
-                'describe': reply['user']['certification']['label'] if len(
-                    reply['user']['certification']['label']) > 0 else reply['user']['introduce'],
-                'like_num': reply['stat']['like_num'],
-                'sub_num': int(reply['stat']['sub_num']),
-                'upvoted': bool(reply['self_operation']['reply_vote_attitude']) and bool(
-                    reply['self_operation']['attitude'])
-            }
-            if rank_by_hot:
-                if reply['reply']:
-                    comments[0] = tmp
+            try:
+                reply = comments_raw[i]
+                tmp = {
+                    'reply_id': reply['reply']['reply_id'],
+                    'floor_id': reply['reply']['floor_id'],
+                    'post_id': reply['reply']['post_id'],
+                    'content': threadRender.replaceAllFromDelta(reply['reply']['struct_content'], emotionDict),
+                    'username': reply['user']['nickname'],
+                    'uid': int(reply['user']['uid']),
+                    'avatar': reply['user']['avatar_url'],
+                    'describe': reply['user']['certification']['label'] if len(
+                        reply['user']['certification']['label']) > 0 else reply['user']['introduce'],
+                    'like_num': reply['stat']['like_num'],
+                    'sub_num': int(reply['stat']['sub_num']),
+                    'upvoted': bool(reply['self_operation']['reply_vote_attitude']) and bool(
+                        reply['self_operation']['attitude'])
+                }
+                if rank_by_hot:
+                    if reply['reply']:
+                        comments[0] = tmp
+                    else:
+                        comments[i + 1] = tmp
                 else:
-                    comments[i + 1] = tmp
-            else:
-                comments[i] = tmp
-            for reply in comments:
-                if reply is not None:
-                    self.comments.append(reply)
+                    comments[i] = tmp
+                for reply in comments:
+                    if reply is not None:
+                        self.comments.append(reply)
+            except:
+                continue
 
 
 class RootComment:
