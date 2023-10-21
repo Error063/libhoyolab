@@ -14,63 +14,65 @@ loginPageDestroyed_user = False
 cookies = ''
 
 page = """<!DOCTYPE html>
-<html lang="zh">
+<html lang=zh>
+
 <head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <style>
-        button{
-            height: 50px;
-            width: 150px;
-            border: none;
-            margin: 0 auto;
-            border-radius: 20px;
+<meta charset=UTF-8>
+<title>Login</title>
+<style>
+button {
+    height: 50px;
+    width: 150px;
+    border: none;
+    margin: 0 auto;
+    border-radius: 20px;
+}
+
+* {
+    text-align: center;
+}
+</style>
+<script>
+function afterShowLoginPage() {
+    pywebview.api.tologin().then(function(flag) {
+        if(flag['flag']) {
+            document.getElementsByClassName('login_user')[0].setAttribute("style", "display: none");
+            document.getElementsByClassName('end')[0].setAttribute("style", "display: block");
+        } else {
+            alert("尝试显示窗口失败，请关闭该窗口后再试");
         }
-        *{
-            text-align: center;
-        }
-    </style>
-    <script>
-        function afterShowLoginPage() {
-            pywebview.api.tologin().then(
-                function (flag) {
-                    if(flag['flag']){
-                        document.getElementsByClassName('login_user')[0].setAttribute("style","display: none")
-                        document.getElementsByClassName('end')[0].setAttribute("style","display: block")
-                    }else {
-                        alert("尝试显示窗口失败，请关闭该窗口后再试")
-                    }
-                }
-            )
-        }
-        function afterLoginSuccess_user() {
-            let status = confirm("是否登录完毕？");
-            if (status){
-                document.getElementsByClassName('end')[0].setAttribute('disabled','')
-                pywebview.api.getcookies_user().then(
-                    function (flag) {
-                        console.log(flag['flag'])
-                        if(flag['flag']){
-                            document.getElementsByClassName('end')[0].setAttribute("style","display: none")
-                            document.getElementsByClassName('step')[0].setAttribute("style","display: none")
-                            document.getElementsByClassName('ableToClose')[0].setAttribute("style","display: block")
-                        }else {
-                            alert('尝试获取登录参数错误，请重新登录！')
-                            document.getElementsByClassName('end')[0].removeAttribute('disabled')
-                            document.getElementsByClassName('end')[0].setAttribute("style","display: none")
-                            document.getElementsByClassName('login_user')[0].setAttribute("style","display: block")
-                        }
-                    }
-                )
+    })
+}
+
+function afterLoginSuccess_user() {
+    let status = confirm("是否登录完毕？");
+    if(status) {
+        document.getElementsByClassName('end')[0].setAttribute('disabled', '');
+        pywebview.api.getcookies_user().then(function(flag) {
+            console.log(flag['flag']);
+            if(flag['flag']) {
+                document.getElementsByClassName('end')[0].setAttribute("style", "display: none");
+                document.getElementsByClassName('step')[0].setAttribute("style", "display: none");
+                document.getElementsByClassName('ableToClose')[0].setAttribute("style", "display: block");
+            } else {
+                alert('尝试获取登录参数错误，请重新登录！');
+                document.getElementsByClassName('end')[0].removeAttribute('disabled');
+                document.getElementsByClassName('end')[0].setAttribute("style", "display:none ");document.getElementsByClassName('login_user')[0].setAttribute("style ","display: block ");
             }
-        }
-    </script>
-</head>
+        })
+    }
+}
+</script>
+
 <body>
-    <p><button class="login_user" onclick="afterShowLoginPage()" style="display: block">登录通行证</button></p>
-    <p><button class="end" onclick="afterLoginSuccess_user()" style="display: none">完成</button></p>
-    <h1 class="ableToClose" style="display: none">现在可以关闭该页面了</h1>
-    <p class="step" style="margin: 0 auto;">步骤：在打开通行证页面后,登录通行证</p>
+    <p>
+        <button class=login_user onclick=afterShowLoginPage() style=display:block>登录通行证</button>
+    </p>
+    <p>
+        <button class=end onclick=afterLoginSuccess_user() style=display:none>完成</button>
+    </p>
+    <h1 class=ableToClose style=display:none>现在可以关闭该页面了</h1>
+    <p class=step style="margin:0 auto">步骤：在打开通行证页面后,登录通行证</p>
 </body>
 </html>"""
 
@@ -205,7 +207,7 @@ def loginByWeb(gui_page: str = page, open_webview=True):
             flag = login(cookies.get('login_ticket', ''))
             if flag:
                 loginAccount_user.destroy()
-            loginPageDestroyed_user = True
+                loginPageDestroyed_user = True
             return {'flag': flag}
 
     api = apis()
@@ -218,3 +220,17 @@ def loginByWeb(gui_page: str = page, open_webview=True):
 
     if open_webview:
         webview.start()
+
+
+class GeetestVerification:
+    @staticmethod
+    def createVerification():
+        resp = session.get(url=urls.createVerification, headers=base.headerGenerate(client='2'))
+        return resp.json()['data']
+
+    @staticmethod
+    def verifyVerification(geetest_json):
+        if geetest_json is str:
+            geetest_json = json.loads(geetest_json)
+        resp = session.post(url=urls.verifyVerification, headers=base.headerGenerate(client='2'), json=geetest_json)
+        return resp.json()

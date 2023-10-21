@@ -42,13 +42,12 @@ def DS2(query='', body='', salt='4x') -> str:
     :param salt: 指定算法所需的salt（当算法为Ds2时使用）
     :return: str
     """
-    match salt.lower():
-        case '4x':
-            salt = Salt_4X
-        case '6x':
-            salt = Salt_6X
-        case 'prod':
-            salt = Salt_PROD
+    if salt.lower() == '4x':
+        salt = Salt_4X
+    elif salt.lower() == '6x':
+        salt = Salt_6X
+    elif salt.lower() == 'prod':
+        salt = Salt_PROD
     t = int(time.time())
     r = random.randint(100001, 200000)
     if body != '':
@@ -62,11 +61,12 @@ def DS2(query='', body='', salt='4x') -> str:
     return f"{t},{r},{ds}"
 
 
-def headerGenerate(app='web', client='4', withCookie=True, withDs=True, agro=1, query='', body: str | dict = '',
+def headerGenerate(app='web', client='4', withCookie=True, withDs=True, withFp=True, agro=1, query='', body: str | dict = '',
                    salt_agro1='lk2', salt_agro2='4x', Referer="https://www.miyoushe.com/", stoken_ver=1,
                    ltoken_ver=1) -> dict:
     """
     生成请求头
+    :param withFp: 是否包含Fp信息
     :param app: ‘app’ 或 ‘web’（已弃用）
     :param client: 1：iOS 2：Android 4：网页 5：其他
     :param withCookie: 是否携带cookie信息
@@ -99,6 +99,19 @@ def headerGenerate(app='web', client='4', withCookie=True, withDs=True, agro=1, 
         "x-rpc-verify_key": "bll8iq97cem8",
         "Referer": Referer,
     }
+    if withFp:
+        headers['x-rpc-device_id'] = (''.join(random.sample(string.digits + string.ascii_letters, 16))).lower()
+        body = {
+            "device_id": headers['x-rpc-device_id'],
+            "seed_id": (''.join(random.sample(string.digits + string.ascii_letters, 16))).lower(),
+            "seed_time": str(int(time.time() * 1000)),
+            "platform": "2",
+            "device_fp": (''.join(random.sample(string.digits, 10))).lower(),
+            "app_name": "bbs_cn",
+            "ext_fields": '{"productName":"mmm", "board": "fghjm", "ramCapacity": "114514", "deviceInfo": "eftyh", "hardware": "ertyh", "display": "ertyh", "buildTime": "16918185684", "hostname": "gdhntyrn", "brand": "hetyhertyhomo"}'
+        }
+        r = session.post('https://public-data-api.mihoyo.com/device-fp/api/getFp', json=body)
+        headers['x-rpc-device_fp'] = r.json()['data']['device_fp']
     return headers
 
 
@@ -127,13 +140,13 @@ def connectApi(apiUrl: str, method='get', data=None, headers=None) -> requests.R
     resp = None
     while count != 0:
         try:
-            match method.lower():
-                case 'get':
-                    resp = session.get(url=apiUrl, headers=headers, verify=False, timeout=5)
-                case 'post':
-                    resp = session.post(url=apiUrl, headers=headers, json=data, verify=False, timeout=5)
-                case _:
-                    raise Exception('method not matched!')
+            if method.lower() == 'get':
+                resp = session.get(url=apiUrl, headers=headers, verify=False, timeout=5)
+            elif method.lower() == 'post':
+                resp = session.post(url=apiUrl, headers=headers, json=data, verify=False, timeout=5)
+            else:
+                raise Exception('method not matched!')
+
             break
         except Exception as e:
             err = e

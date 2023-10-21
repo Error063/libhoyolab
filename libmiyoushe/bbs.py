@@ -1,6 +1,8 @@
 import pprint
 import time
 
+from delta import Delta
+
 from . import *
 from . import urls, threadRender
 import logging
@@ -71,17 +73,16 @@ def getEmotions(gid: str | int = '2') -> dict:
 
 def getGame(game):
     resp = connectApi(urls.getGameList)
-    match game:
-        case 'all':
-            game_list = list()
-            for item in resp.json()['data']['list']:
-                game_list.append([item['name'], item['id'], item['op_name'], item['en_name']])
-            return game_list
-        case _:
-            for item in resp.json()['data']['list']:
-                if item['en_name'] == game or item['name'] == game or item['op_name'] == game or item['id'] == game:
-                    return [item['name'], item['id'], item['op_name'], item['en_name']]
-            return ['', 0, '']
+    if game == 'all':
+        game_list = list()
+        for item in resp.json()['data']['list']:
+            game_list.append([item['name'], item['id'], item['op_name'], item['en_name']])
+        return game_list
+    else:
+        for item in resp.json()['data']['list']:
+            if item['en_name'] == game or item['name'] == game or item['op_name'] == game or item['id'] == game:
+                return [item['name'], item['id'], item['op_name'], item['en_name']]
+        return ['', 0, '']
 
 
 class Article:
@@ -213,9 +214,9 @@ class Page:
 
 class Forum:
 
-    def __init__(self, forum_id, gid, last_id=0, pageSize=20, is_hot=True, sort_type=1):
+    def __init__(self, forum_id, gid, last_id='', pageSize=20, is_hot=False, sort_type=1):
         apiUrl = urls.getForumPostList.format(str(forum_id), str(gid), 'false', str(is_hot).lower(), str(pageSize),
-                                              str(sort_type), str(last_id))
+                                              str(sort_type), str(last_id))  # str(last_id)
         resp = connectApi(apiUrl=apiUrl).json()
         self.articles = articleSet(resp['data']['list'])
         self.is_last = resp['data']['is_last']
@@ -382,19 +383,19 @@ class Search:
     搜索类
     """
 
-    def __init__(self, keyWords, gid, page=1, max_size=20):
+    def __init__(self, keywords, gid, page=1, max_size=20):
         """
         初始化搜索类
-        :param keyWords: 关键字
+        :param keywords: 关键字
         :param gid: 游戏id
         :param page: 页数
         :param max_size: 单次获取的最大的文章数量
         """
         self.gid = gid
         start = int(page)
-        logger.info(f'searching {keyWords}, from {start}')
-        logger.info(f'accessing {urls.searchPosts.format(str(gid), str(keyWords), str(start), str(max_size))}')
-        req = connectApi(apiUrl=urls.searchPosts.format(str(gid), str(keyWords), str(start), str(max_size)))
+        logger.info(f'searching {keywords}, from {start}')
+        logger.info(f'accessing {urls.searchPosts.format(str(gid), str(keywords), str(start), str(max_size))}')
+        req = connectApi(apiUrl=urls.searchPosts.format(str(gid), str(keywords), str(start), str(max_size)))
         result = req.json()
         self.isLastFlag = result['data']['is_last']
         self.articles = articleSet(result['data']['posts'])
@@ -463,6 +464,7 @@ class User:
         posts = resp.json()['data']
         userPosts = dict(isLast=posts['is_last'], posts=articleSet(posts['list']), next=posts['next_offset'])
         return userPosts
+    
 
 
 class Actions:
@@ -555,7 +557,7 @@ class Actions:
         return {'article': articleSet(resp['list'], method='history'), 'isLast': resp['is_last']}
 
     @staticmethod
-    def releaseReply(delta, text, post_id, reply_id=''):
+    def releaseReply(text, post_id, reply_id='', delta=None):
         """
         发布评论
         :param delta: 评论的delta结构化信息（基于quill.js）
@@ -564,6 +566,8 @@ class Actions:
         :param reply_id: 回复楼中楼的id
         :return:
         """
+        if delta is None:
+            delta = {'ops': list(Delta().insert(text))}
         if delta is str:
             delta = json.loads(delta)
         logger.info(f"releasing the reply to post {post_id} with content {text}")

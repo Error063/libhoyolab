@@ -5,7 +5,7 @@ api_base = "https://bbs-api.miyoushe.com/"
 api_static_base = 'https://bbs-api-static.miyoushe.com/'
 static_base = 'https://bbs-static.miyoushe.com/'
 
-# File
+# Static
 defaultAvatar = static_base + "avatar/avatarDefault.png"
 
 # Gets
@@ -29,6 +29,9 @@ history = api_base + "painter/api/history/list?offset={0}"
 getAllGamesForums = api_base + 'apihub/wapi/getAllGamesForums'
 getGameList = api_base + 'apihub/api/getGameList'
 getForumPostList = api_base + "post/wapi/getForumPostList?forum_id={0}&gids={1}&is_good={2}&is_hot={3}&page_size={4}&sort_type={5}&last_id={6}"
+dailyNote_genshin_widget = 'https://api-takumi-record.mihoyo.com/game_record/app/genshin/aapi/widget/v2'
+dailyNote_hkrpg_widget = 'https://api-takumi-record.mihoyo.com/game_record/app/hkrpg/aapi/widget'
+createVerification = 'https://bbs-api.miyoushe.com/misc/api/createVerification?is_high=true'
 
 # Posts
 login = 'https://webapi.account.mihoyo.com/Api/login_by_password'
@@ -40,3 +43,5 @@ releaseReply = api_base + 'post/api/releaseReply'
 deleteReply = api_base + 'post/api/deleteReply'
 upvoteReply = api_base + "apihub/sapi/upvoteReply"
 Cookie_url4 = 'https://passport-api.mihoyo.com/account/ma-cn-session/app/getTokenBySToken'
+getFp = 'https://public-data-api.mihoyo.com/device-fp/api/getFp'
+verifyVerification = 'https://bbs-api.miyoushe.com/misc/api/verifyVerification'
