@@ -12,7 +12,7 @@ defaultAvatar = static_base + "avatar/avatarDefault.png"
 Cookie_url = "https://webapi.account.mihoyo.com/Api/cookie_accountinfo_by_loginticket?login_ticket={0}"
 Cookie_url2 = "https://api-takumi.mihoyo.com/auth/api/getMultiTokenByLoginTicket?login_ticket={0}&token_types=3&uid={1}"
 Cookie_url3 = 'https://api-takumi.mihoyo.com/auth/api/getCookieAccountInfoBySToken?stoken={0}&uid={1}'
-mmt_pwd = "https://webapi.account.mihoyo.com/Api/create_mmt?scene_type=1&now={}&reason=user.mihoyo.com%23%2Flogin%2Fpassword&action_type=login_by_password&account={}&t={}"
+mmt = "https://webapi.account.mihoyo.com/Api/create_mmt?scene_type=1&now={}"
 getPostReplies = api_base + "post/api/getPostReplies?gids={0}&is_hot={1}&post_id={2}&size={3}&last_id={4}&order_type={5}&only_master={6}"
 getSubReplies = api_base + "post/api/getSubReplies?post_id={0}&floor_id={1}&last_id={2}&size={3}"
 getRootReplyInfo = api_base + 'post/api/getRootReplyInfo?post_id={0}&reply_id={1}'
@@ -34,7 +34,8 @@ dailyNote_hkrpg_widget = 'https://api-takumi-record.mihoyo.com/game_record/app/h
 createVerification = 'https://bbs-api.miyoushe.com/misc/api/createVerification?is_high=true'
 
 # Posts
-login = 'https://webapi.account.mihoyo.com/Api/login_by_password'
+login_pwd = 'https://webapi.account.mihoyo.com/Api/login_by_password'
+login_sms = 'https://webapi.account.mihoyo.com/Api/login_by_mobilecaptcha'
 follow = api_base + "timeline/api/follow"
 unfollow = api_base + "timeline/api/unfollow"
 upvotePost = api_base + "apihub/sapi/upvotePost"
@@ -45,3 +46,4 @@ upvoteReply = api_base + "apihub/sapi/upvoteReply"
 Cookie_url4 = 'https://passport-api.mihoyo.com/account/ma-cn-session/app/getTokenBySToken'
 getFp = 'https://public-data-api.mihoyo.com/device-fp/api/getFp'
 verifyVerification = 'https://bbs-api.miyoushe.com/misc/api/verifyVerification'
+send_sms = 'https://webapi.account.mihoyo.com/Api/create_mobile_captcha'

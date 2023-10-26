@@ -1,6 +1,5 @@
 import logging
 import time
-import warnings
 
 import webview
 
@@ -134,11 +133,13 @@ def reLogin(uid: str = 'all'):
     刷新登录状态
     :return: bool 执行状态 True => 成功，False => 失败
     """
+
     def inner_reLogin(inner_uid):
         account = configs.readAccount('dict', inner_uid)
         if account['isLogin']:
             login_ticket = account['login_ticket']
             return login(login_ticket)
+
     exist_user_list = getExistUser()
     if uid == 'all':
         for uid in exist_user_list:
@@ -149,33 +150,93 @@ def reLogin(uid: str = 'all'):
         inner_reLogin(uid)
 
 
-def getLoginTicketByPassword(username: str, password: str):
-    """
-    使用用户名密码获取login_ticket
-    :param username: 米哈游通行证 - 账号
-    :param password: 米哈游通行证 - 密码
-    :return: dict 'msg' => 执行返回信息，'token' => login_ticket(失败返回空字符串)
-    """
-    warnings.warn("Use this method may not a good idea, please use 'loginByWeb()' instead", Warning)
-    resp_mmt = session.get(urls.mmt_pwd.format(int(time.time() * 1000), username, int(time.time() * 1000))).json()
-    if 'gt' in resp_mmt['data']:
-        return {'msg': 'request to finish captcha, exiting...', 'token': ''}
-    else:
-        mmt_key = resp_mmt['data']['mmt_data']['mmt_key']
+def createLoginMmt():
+    resp_mmt = session.get(urls.mmt.format(int(time.time() * 1000))).json()
+    return resp_mmt['data']['mmt_data']
+
+
+class getLoginTicketBySms:
+    @staticmethod
+    def createSms(phone, mmt, geetest_data=None):
+        if geetest_data is None:
+            geetest_data = {}
         datas = {
-            'account': username,
-            'password': base.encrypt(password),
-            'is_crypto': 'true',
-            'mmt_key': mmt_key,
-            'source': 'user.mihoyo.com',
+            'action_type': 'login',
+            'mmt_key': mmt,
+            'mobile': phone,
             't': str(int(time.time() * 1000))
         }
-        raw_resp = session.post(urls.login, data=datas)
+        if geetest_data:
+            match geetest_data['version']:
+                case 'none':
+                    pass
+                case 'gt3':
+                    datas['geetest_challenge'] = geetest_data['geetest_challenge']
+                    datas['geetest_validate'] = geetest_data['geetest_validate']
+                    datas['geetest_validate'] = geetest_data['geetest_seccode']
+                case 'gt4':
+                    if geetest_data['geetest_v4_data'] is dict:
+                        datas['geetest_v4_data'] = json.dumps(geetest_data['geetest_v4_data'])
+                    else:
+                        datas['geetest_v4_data'] = geetest_data['geetest_v4_data']
+        raw_resp = session.post(urls.send_sms, data=datas)
+        resp_login = raw_resp.json()
+        return resp_login
+
+    @staticmethod
+    def verifySms(phone, code):
+        datas = {
+            'source': 'user.mihoyo.com',
+            'mobile_captcha': code,
+            'mobile': phone,
+            't': str(int(time.time() * 1000))
+        }
+        raw_resp = session.post(urls.login_sms, data=datas)
         resp_login = raw_resp.json()
         if resp_login['data']['msg'] == '成功':
             return {'msg': resp_login['data']['msg'], 'token': resp_login['data']['account_info']['weblogin_token']}
         else:
             return {'msg': resp_login['data']['msg'], 'token': ''}
+
+
+def getLoginTicketByPassword(username: str, password: str, mmt: str, geetest_data=None):
+    """
+    使用用户名密码获取login_ticket
+    :param geetest_data: 极验人机验证返回信息（需要转换成JSON文本）
+    :param mmt: 人机验证token
+    :param username: 米哈游通行证 - 账号
+    :param password: 米哈游通行证 - 密码
+    :return: dict 'msg' => 执行返回信息，'token' => login_ticket(失败返回空字符串)
+    """
+    if geetest_data is None:
+        geetest_data = {}
+    datas = {
+        'account': username,
+        'password': base.encrypt(password),
+        'is_crypto': 'true',
+        'mmt_key': mmt,
+        'source': 'user.mihoyo.com',
+        't': str(int(time.time() * 1000))
+    }
+    if geetest_data:
+        match geetest_data['version']:
+            case 'none':
+                pass
+            case 'gt3':
+                datas['geetest_challenge'] = geetest_data['geetest_challenge']
+                datas['geetest_validate'] = geetest_data['geetest_validate']
+                datas['geetest_validate'] = geetest_data['geetest_seccode']
+            case 'gt4':
+                if geetest_data['geetest_v4_data'] is dict:
+                    datas['geetest_v4_data'] = json.dumps(geetest_data['geetest_v4_data'])
+                else:
+                    datas['geetest_v4_data'] = geetest_data['geetest_v4_data']
+    raw_resp = session.post(urls.login_pwd, data=datas)
+    resp_login = raw_resp.json()
+    if resp_login['data']['msg'] == '成功':
+        return {'msg': resp_login['data']['msg'], 'token': resp_login['data']['account_info']['weblogin_token']}
+    else:
+        return {'msg': resp_login['data']['msg'], 'token': ''}
 
 
 def loginByWeb(gui_page: str = page, open_webview=True):

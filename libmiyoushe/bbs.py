@@ -100,6 +100,9 @@ class Article:
         headers = headerGenerate(app='web')
         resp = connectApi(urls.getPostFull.format(str(post_id)), headers=headers)
         self.result = resp.json()
+        self.result["data"]['post']['post']['content'] = threadRender.replaceAll(
+            self.result["data"]['post']['post']['content'],
+            emotionDict=getEmotions(gid=self.result["data"]['post']['post']['game_id']))
 
     def getReleasedTime(self):
         return time.strftime("%Y-%m-%d %H:%M:%S",
@@ -464,7 +467,6 @@ class User:
         posts = resp.json()['data']
         userPosts = dict(isLast=posts['is_last'], posts=articleSet(posts['list']), next=posts['next_offset'])
         return userPosts
-    
 
 
 class Actions:
