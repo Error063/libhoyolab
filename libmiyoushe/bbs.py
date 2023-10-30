@@ -95,16 +95,21 @@ class Article:
         初始化文章类
         :param post_id: 文章id
         """
+        self.on_error = True
         logger.info(f'getting article from {post_id}')
         logger.info('accessing ' + urls.getPostFull.format(str(post_id)))
         headers = headerGenerate(app='web')
         resp = connectApi(urls.getPostFull.format(str(post_id)), headers=headers)
         self.result = resp.json()
-        self.result["data"]['post']['post']['content'] = threadRender.replaceAll(
-            self.result["data"]['post']['post']['content'],
-            emotionDict=getEmotions(gid=self.result["data"]['post']['post']['game_id']))
+        if self.result['retcode'] == 0:
+            self.on_error = False
+            self.result["data"]['post']['post']['content'] = threadRender.replaceAll(
+                self.result["data"]['post']['post']['content'],
+                emotionDict=getEmotions(gid=self.result["data"]['post']['post']['game_id']))
 
     def getReleasedTime(self):
+        if self.on_error:
+            return ''
         return time.strftime("%Y-%m-%d %H:%M:%S",
                              time.localtime(int(self.result['data']['post']['post']['created_at'])))
 
@@ -113,6 +118,8 @@ class Article:
         获取文章内容(基于HTML)
         :return:
         """
+        if self.on_error:
+            return ''
         return threadRender.replaceAll(self.result["data"]['post']['post']['content'],
                                        emotionDict=getEmotions(gid=self.result["data"]['post']['post']['game_id']))
 
@@ -121,6 +128,8 @@ class Article:
         获取结构化的文章内容（基于Quill的Delta）
         :return:
         """
+        if self.on_error:
+            return ''
         structured = self.result["data"]["post"]["post"]["structured_content"]
         return threadRender.replaceAllFromDelta(structured, emotionDict=getEmotions(
             gid=self.result["data"]['post']['post']['game_id']))
@@ -130,6 +139,8 @@ class Article:
         获取视频及其不同的清晰度
         :return:
         """
+        if self.on_error:
+            return ''
         return json.dumps(self.result["data"]["post"]["vod_list"])
 
     def getSelfAttitude(self) -> bool:
@@ -137,6 +148,8 @@ class Article:
         获取用户是否给文章点赞
         :return:
         """
+        if self.on_error:
+            return False
         return bool(self.result['data']['post']['self_operation']['attitude'])
 
     def getSelfCollect(self) -> bool:
@@ -144,6 +157,8 @@ class Article:
         获取用户是否给文章收藏
         :return:
         """
+        if self.on_error:
+            return False
         return bool(self.result['data']['post']['self_operation']['is_collected'])
 
     def getVotes(self) -> int:
@@ -151,6 +166,8 @@ class Article:
         获取文章的点赞数
         :return:
         """
+        if self.on_error:
+            return 0
         return int(self.result['data']['post']['stat']['like_num'])
 
     def getCollects(self) -> int:
@@ -158,6 +175,8 @@ class Article:
         获取文章的收藏数
         :return:
         """
+        if self.on_error:
+            return 0
         return int(self.result['data']['post']['stat']['bookmark_num'])
 
     def getAuthorDescribe(self) -> str:
@@ -165,6 +184,8 @@ class Article:
         获取作者简介
         :return:
         """
+        if self.on_error:
+            return ''
         return f"{self.result['data']['post']['user']['certification']['label'] if len(self.result['data']['post']['user']['certification']['label']) > 0 else self.result['data']['post']['user']['introduce']}"
 
     def getTags(self) -> list:
@@ -172,6 +193,8 @@ class Article:
         获取文章标签
         :return:
         """
+        if self.on_error:
+            return []
         tags = list()
         for tag in self.result['data']['post']['topics']:
             tags.append({

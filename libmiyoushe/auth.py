@@ -173,7 +173,7 @@ class getLoginTicketBySms:
                 case 'gt3':
                     datas['geetest_challenge'] = geetest_data['geetest_challenge']
                     datas['geetest_validate'] = geetest_data['geetest_validate']
-                    datas['geetest_validate'] = geetest_data['geetest_seccode']
+                    datas['geetest_seccode'] = geetest_data['geetest_seccode']
                 case 'gt4':
                     if geetest_data['geetest_v4_data'] is dict:
                         datas['geetest_v4_data'] = json.dumps(geetest_data['geetest_v4_data'])
@@ -225,7 +225,7 @@ def getLoginTicketByPassword(username: str, password: str, mmt: str, geetest_dat
             case 'gt3':
                 datas['geetest_challenge'] = geetest_data['geetest_challenge']
                 datas['geetest_validate'] = geetest_data['geetest_validate']
-                datas['geetest_validate'] = geetest_data['geetest_seccode']
+                datas['geetest_seccode'] = geetest_data['geetest_seccode']
             case 'gt4':
                 if geetest_data['geetest_v4_data'] is dict:
                     datas['geetest_v4_data'] = json.dumps(geetest_data['geetest_v4_data'])
