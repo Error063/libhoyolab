@@ -3,11 +3,20 @@ api的集合
 """
 api_base = "https://bbs-api.miyoushe.com/"
 api_static_base = 'https://bbs-api-static.miyoushe.com/'
-static_base = 'https://bbs-static.miyoushe.com/'
 api_takumi_base = 'https://api-takumi.mihoyo.com/'
 api_account_base = 'https://webapi.account.mihoyo.com/'
+api_passport_base = 'https://passport-api.mihoyo.com/'
+
+# 本地模式
+# api_base = "http://localhost:5000/"
+# api_static_base = "http://localhost:5000/"
+# api_takumi_base = "http://localhost:5000/"
+# api_account_base = "http://localhost:5000/"
+# api_passport_base = "http://localhost:5000/"
+
 
 # Static
+static_base = 'https://bbs-static.miyoushe.com/'
 defaultAvatar = static_base + "avatar/avatarDefault.png"
 
 # Gets
@@ -45,7 +54,7 @@ collectPost = api_base + 'post/api/collectPost'
 releaseReply = api_base + 'post/api/releaseReply'
 deleteReply = api_base + 'post/api/deleteReply'
 upvoteReply = api_base + "apihub/sapi/upvoteReply"
-Cookie_url4 = 'https://passport-api.mihoyo.com/account/ma-cn-session/app/getTokenBySToken'
+Cookie_url4 = api_passport_base + 'account/ma-cn-session/app/getTokenBySToken'
 getFp = 'https://public-data-api.mihoyo.com/device-fp/api/getFp'
 verifyVerification = api_base + 'misc/api/verifyVerification'
 send_sms = api_account_base + 'Api/create_mobile_captcha'

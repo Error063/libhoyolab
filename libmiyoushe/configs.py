@@ -73,6 +73,7 @@ def clearAccount(uid: str = 'current'):
     :return:
     """
     isCurrent = False
+    uid = str(uid)
     try:
         with open(account_file) as f:
             account_set = json.load(f)

@@ -90,12 +90,14 @@ class Article:
     文章类：从服务器索取文章信息
     """
 
-    def __init__(self, post_id):
+    def __init__(self, post_id, customReplaceList: list[list[str, str]] = None):
         """
         初始化文章类
         :param post_id: 文章id
+        :param customReplaceList: 自定义替换样式列表，[正则表达式，要替换内容的模板（内容使用{}占位）]
         """
         self.on_error = True
+        self.customReplaceList = customReplaceList
         logger.info(f'getting article from {post_id}')
         logger.info('accessing ' + urls.getPostFull.format(str(post_id)))
         headers = headerGenerate(app='web')
@@ -105,7 +107,8 @@ class Article:
             self.on_error = False
             self.result["data"]['post']['post']['content'] = threadRender.replaceAll(
                 self.result["data"]['post']['post']['content'],
-                emotionDict=getEmotions(gid=self.result["data"]['post']['post']['game_id']))
+                emotionDict=getEmotions(gid=self.result["data"]['post']['post']['game_id']),
+                customReplaceList=customReplaceList)
 
     def getReleasedTime(self):
         if self.on_error:
@@ -121,7 +124,8 @@ class Article:
         if self.on_error:
             return ''
         return threadRender.replaceAll(self.result["data"]['post']['post']['content'],
-                                       emotionDict=getEmotions(gid=self.result["data"]['post']['post']['game_id']))
+                                       emotionDict=getEmotions(gid=self.result["data"]['post']['post']['game_id']),
+                                       customReplaceList=self.customReplaceList)
 
     def getStructuredContent(self) -> str:
         """
@@ -132,7 +136,8 @@ class Article:
             return ''
         structured = self.result["data"]["post"]["post"]["structured_content"]
         return threadRender.replaceAllFromDelta(structured, emotionDict=getEmotions(
-            gid=self.result["data"]['post']['post']['game_id']))
+            gid=self.result["data"]['post']['post']['game_id']),
+            customReplaceList=self.customReplaceList)
 
     def getVideo(self) -> str:
         """

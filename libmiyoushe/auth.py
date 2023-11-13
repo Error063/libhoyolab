@@ -199,9 +199,10 @@ class getLoginTicketBySms:
             return {'msg': resp_login['data']['msg'], 'token': ''}
 
 
-def getLoginTicketByPassword(username: str, password: str, mmt: str, geetest_data=None):
+def getLoginTicketByPassword(username: str, password: str, mmt: str, pwd_crypto=True, geetest_data=None):
     """
     使用用户名密码获取login_ticket
+    :param pwd_crypto:是否加密密码
     :param geetest_data: 极验人机验证返回信息（需要转换成JSON文本）
     :param mmt: 人机验证token
     :param username: 米哈游通行证 - 账号
@@ -212,8 +213,8 @@ def getLoginTicketByPassword(username: str, password: str, mmt: str, geetest_dat
         geetest_data = {}
     datas = {
         'account': username,
-        'password': base.encrypt(password),
-        'is_crypto': 'true',
+        'password': base.encrypt(password) if pwd_crypto else password,
+        'is_crypto': str(pwd_crypto).lower(),
         'mmt_key': mmt,
         'source': 'user.mihoyo.com',
         't': str(int(time.time() * 1000))

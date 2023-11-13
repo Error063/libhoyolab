@@ -10,7 +10,7 @@ requests.packages.urllib3.disable_warnings()
 
 session = requests.session()
 
-lib_version = '0.0.4.1'
+lib_version = '0.0.4.2'
 lib_name = 'libmiyoushe'
 lib_desc = "A module for miyoushe(米游社), include mihoyo account authentication, some actions for miyoushe(米游社), etc."
 home_dir = str(pathlib.Path.home())
