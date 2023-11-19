@@ -318,16 +318,19 @@ class Comments:
                     'upvoted': bool(reply['self_operation']['reply_vote_attitude']) and bool(
                         reply['self_operation']['attitude'])
                 }
-                if rank_by_hot:
-                    if reply['reply']:
-                        comments[0] = tmp
-                    else:
-                        comments[i + 1] = tmp
-                else:
-                    comments[i] = tmp
-                for reply in comments:
-                    if reply is not None:
-                        self.comments.append(reply)
+                if len(reply['user']['avatar_ext']['hd_resources']) > 0:
+                    tmp['avatar'] = reply['user']['avatar_ext']['hd_resources'][0]['url']
+                self.comments.append(tmp)
+                # if rank_by_hot:
+                #     if reply['reply']:
+                #         comments[0] = tmp
+                #     else:
+                #         comments[i + 1] = tmp
+                # else:
+                #     comments[i] = tmp
+                # for reply in comments:
+                #     if reply is not None:
+                #         self.comments.append(reply)
             except:
                 continue
 
@@ -363,6 +366,8 @@ class RootComment:
             'upvoted': bool(resp['reply']['self_operation']['reply_vote_attitude']) and bool(
                 resp['reply']['self_operation']['attitude'])
         }
+        if len(resp['reply']['user']['avatar_ext']['hd_resources']) > 0:
+            self.comment['avatar'] = resp['reply']['user']['avatar_ext']['hd_resources'][0]['url']
 
 
 class SubComments:
@@ -394,7 +399,7 @@ class SubComments:
         self.last_id = resp['data']['last_id']
         comments_raw = resp['data']['list']
         for reply in comments_raw:
-            self.comments.append({
+            tmp = {
                 'reply_id': reply['reply']['reply_id'],
                 'post_id': reply['reply']['post_id'],
                 'content': threadRender.replaceAllFromDelta(reply['reply']['struct_content'], emotionDict),
@@ -406,7 +411,10 @@ class SubComments:
                 'like_num': reply['stat']['like_num'],
                 'upvoted': bool(reply['self_operation']['reply_vote_attitude']) and bool(
                     reply['self_operation']['attitude'])
-            })
+            }
+            if len(reply['user']['avatar_ext']['hd_resources']) > 0:
+                tmp['avatar'] = reply['user']['avatar_ext']['hd_resources'][0]['url']
+            self.comments.append(tmp)
 
 
 class Search:
@@ -482,7 +490,13 @@ class User:
         获取用户头像
         :return:
         """
-        return self.info['user_info']['avatar_url'] if self.isExist else urls.defaultAvatar
+        if self.isExist:
+            if len(self.info['user_info']['avatar_ext']['hd_resources']) > 0:
+                return self.info['user_info']['avatar_ext']['hd_resources'][0]['url']
+            else:
+                return self.info['user_info']['avatar_url']
+        else:
+            return urls.defaultAvatar
 
     def getUserPost(self, offset=0, size=20):
         """
