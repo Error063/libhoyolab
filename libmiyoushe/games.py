@@ -21,6 +21,5 @@ class StarRail:
     def dailyNote():
         header = headerGenerate(client='2', salt_agro2='6x', agro=2)
         resp = session.get(urls.dailyNote_hkrpg_widget, headers=header)
-        print(resp.text)
         notes = resp.json()
         return notes

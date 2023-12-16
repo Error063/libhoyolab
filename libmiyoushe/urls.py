@@ -43,6 +43,8 @@ getForumPostList = api_base + "post/wapi/getForumPostList?forum_id={0}&gids={1}&
 dailyNote_genshin_widget = 'https://api-takumi-record.mihoyo.com/game_record/app/genshin/aapi/widget/v2'
 dailyNote_hkrpg_widget = 'https://api-takumi-record.mihoyo.com/game_record/app/hkrpg/aapi/widget'
 createVerification = api_base + 'misc/api/createVerification?is_high=true'
+notifySetting = api_base + "user/wapi/notify/settings?uid={0}"
+getNotifies = api_base + "notification/wapi/getUserGameNotifications?category={0}&gids={1}&only_focus={2}&page_size={3}"
 
 # Posts
 login_pwd = api_account_base + 'Api/login_by_password'
